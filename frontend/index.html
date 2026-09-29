@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ComplaintBox | Management</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#6b7486;--line:#e4e8f0;--blue:#3659d9;--red:#bd3947;--radius:14px;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}.shell{max-width:1180px;margin:auto;padding:28px 22px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px}.brand{display:flex;gap:12px;align-items:center}.mark{background:var(--blue);color:white;border-radius:12px;width:42px;height:42px;display:grid;place-items:center;font-weight:800;font-size:20px}h1{font-size:22px;margin:0}.sub{font-size:13px;color:var(--muted);margin:4px 0}.status{border:1px solid var(--line);background:white;padding:9px 12px;border-radius:30px;color:var(--muted);font-size:12px}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:22px}aside,.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}aside{padding:12px;height:max-content}.navlabel{font-size:10px;letter-spacing:1px;color:#929bad;padding:10px}.nav{display:block;width:100%;text-align:left;border:0;background:transparent;padding:12px;border-radius:9px;color:#566176;cursor:pointer;font-size:14px}.nav.active,.nav:hover{background:#eef2ff;color:var(--blue);font-weight:700}
+.pagehead{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:3px 0 18px}h2{font-size:23px;margin:0}.desc{font-size:13px;color:var(--muted);margin:6px 0}.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:650;font-size:13px}.btn.primary{background:var(--blue);color:white;border-color:var(--blue)}.btn.danger{color:var(--red)}.panel{padding:20px;margin-bottom:18px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.panelhead h3{margin:0;font-size:15px}.panelhead small{color:var(--muted)}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}label{font-size:12px;font-weight:700;color:#536078}input,select,textarea{font:inherit;font-size:13px;width:100%;padding:11px 12px;border:1px solid #dce2ec;border-radius:9px;background:#fff;color:var(--ink)}textarea{min-height:85px;resize:vertical}.formactions{display:flex;gap:9px;margin-top:16px}.toolbar{display:flex;gap:10px;align-items:center}.toolbar input{max-width:230px}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#7a8496;background:#f8f9fc;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:13px 12px;border-bottom:1px solid #edf0f5;vertical-align:middle}tr:last-child td{border-bottom:0}.tablewrap{overflow-x:auto}.empty{text-align:center;color:var(--muted);padding:30px}.rowactions{display:flex;gap:6px}.mini{border:1px solid var(--line);background:white;border-radius:7px;padding:6px 9px;cursor:pointer;font-size:12px}.mini.delete{color:var(--red)}.pill{background:#f0f3fa;border-radius:20px;padding:5px 9px;font-size:11px}.notice{display:none;padding:12px 14px;border-radius:9px;margin-bottom:15px;font-size:13px}.notice.show{display:block}.notice.ok{background:#eaf7ef;color:#18794e}.notice.err{background:#fff0f0;color:#a92d3a}.hidden{display:none!important}footer{text-align:center;color:#9aa3b2;font-size:11px;padding:10px}
+@media(max-width:760px){.shell{padding:17px 12px}.layout{grid-template-columns:1fr}aside{display:flex;overflow:auto;gap:4px}.navlabel{display:none}.nav{width:auto;white-space:nowrap}.status{display:none}.pagehead{align-items:flex-start;flex-direction:column}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header><div class="brand"><div class="mark">C</div><div><h1>ComplaintBox</h1><p class="sub">Hostel maintenance · Management console</p></div></div><div class="status" id="apiStatus">Checking API…</div></header>
+<div class="layout">
+<aside><div class="navlabel">WORKSPACE</div>
+<button class="nav" data-kind="complaints">▤ &nbsp; Complaints</button>
+<button class="nav" data-kind="residents">♙ &nbsp; Residents</button>
+<button class="nav" data-kind="staff">♧ &nbsp; Staff</button>
+<button class="nav" data-kind="categories">◫ &nbsp; Categories</button>
+</aside>
+<main>
+<div class="pagehead"><div><h2 id="pageTitle">Complaints</h2><p class="desc" id="pageDesc">Track, review, and update maintenance requests.</p></div><div><button class="btn" id="refresh">↻ Refresh</button> <button class="btn primary" id="new">＋ New record</button></div></div>
+<div id="notice" class="notice"></div>
+<section class="panel hidden" id="formPanel"><div class="panelhead"><h3 id="formTitle">Create record</h3></div><form id="recordForm"><div class="formgrid" id="fields"></div><div class="formactions"><button class="btn primary" type="submit" id="save">Save record</button><button class="btn" type="button" id="cancel">Cancel</button></div></form></section>
+<section class="panel"><div class="panelhead"><h3 id="tableTitle">All complaints</h3><div class="toolbar"><input id="search" type="search" placeholder="Search records…"><small id="count">0 records</small></div></div><div class="tablewrap"><table><thead id="thead"></thead><tbody id="tbody"><tr><td class="empty">Loading…</td></tr></tbody></table></div></section>
+<footer>ComplaintBox · Hostel maintenance management</footer>
+</main></div></div>
+<script>
+const API="http://localhost:8080/api";
+const cfg={
+residents:{title:"Residents",desc:"Manage resident profiles and room details.",endpoint:"/residents",singular:"Resident",fields:[["name","Full name",1],["email","Email",1,"email"],["roomNumber","Room number",1]],cols:["id","name","email","roomNumber"]},
+staff:{title:"Staff",desc:"Manage maintenance staff and contact details.",endpoint:"/staff",singular:"Staff member",fields:[["name","Full name",1],["email","Email",1,"email"],["role","Role",1],["phoneNumber","Phone number",1]],cols:["id","name","email","role","phoneNumber"]},
+categories:{title:"Categories",desc:"Organize complaints by maintenance category.",endpoint:"/categories",singular:"Category",fields:[["name","Category name",1],["description","Description",0,"textarea"]],cols:["id","name","description"]},
+complaints:{title:"Complaints",desc:"Track, review, and update maintenance requests.",endpoint:"/complaints",singular:"Complaint",fields:[["title","Complaint title",1],["roomNumber","Room number",1],["category","Category",1],["status","Status",1,"select"],["description","Description",1,"textarea"]],cols:["id","title","roomNumber","category","status","description"]}
+};
+let kind="complaints",rows=[],editId=null;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function notice(msg,err=false){$("notice").textContent=msg;$("notice").className="notice show "+(err?"err":"ok");setTimeout(()=>$("notice").className="notice",4500)}
+async function api(path,opts={}){const r=await fetch(API+path,{...opts,headers:{"Content-Type":"application/json",...(opts.headers||{})}});const t=await r.text();let d;try{d=t?JSON.parse(t):null}catch{d=t}if(!r.ok)throw Error((d&&d.message)||t||("HTTP "+r.status));return d}
+function renderForm(item={}){$("fields").innerHTML=cfg[kind].fields.map(([key,label,req,type])=>{let val=item[key]??"",control;if(type==="textarea")control=`<textarea name="${key}" id="f-${key}" ${req?"required":""}>${esc(val==="—"?"":val)}</textarea>`;else if(type==="select")control=`<select id="f-${key}" name="${key}" required>${["PENDING","IN_PROGRESS","RESOLVED"].map(x=>`<option ${val===x?"selected":""}>${x}</option>`).join("")}</select>`;else control=`<input id="f-${key}" name="${key}" type="${type||"text"}" value="${esc(val==="—"?"":val)}" ${req?"required":""}>`;return `<div class="field ${type==="textarea"?"full":""}"><label for="f-${key}">${label}${req?" *":""}</label>${control}</div>`}).join("")}
+function openForm(row=null){editId=row?row.id:null;$("formTitle").textContent=(row?"Edit ":"Create ")+cfg[kind].singular; $("save").textContent=row?"Save changes":"Create record";renderForm(row||{});$("formPanel").classList.remove("hidden")}
+function closeForm(){$("formPanel").classList.add("hidden");$("recordForm").reset();editId=null}
+function render(){let q=$("search").value.toLowerCase(),list=rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q)),cols=cfg[kind].cols;$("thead").innerHTML=`<tr>${cols.map(k=>`<th>${esc(k==="roomNumber"?"Room":k.replace(/[A-Z]/g,m=>" "+m).replace(/^./,s=>s.toUpperCase()))}</th>`).join("")}<th>Actions</th></tr>`;$("count").textContent=list.length+" record"+(list.length===1?"":"s");$("tbody").innerHTML=list.length?list.map(row=>`<tr>${cols.map(k=>`<td>${k==="status"?`<span class="pill">${esc(row[k])}</span>`:esc(row[k])}</td>`).join("")}<td><div class="rowactions">${kind==="complaints"?`<button class="mini" data-action="status" data-id="${row.id}">Status</button>`:`<button class="mini" data-action="edit" data-id="${row.id}">Edit</button>`}<button class="mini delete" data-action="delete" data-id="${row.id}">Delete</button></div></td></tr>`).join(""):`<tr><td class="empty" colspan="${cols.length+1}">${q?"No matching records.":"No records yet."}</td></tr>`}
+async function load(){try{let data=await api(cfg[kind].endpoint);rows=Array.isArray(data)?data:[];$("apiStatus").textContent="● API connected";render()}catch(e){rows=[];render();$("apiStatus").textContent="● API unavailable";notice("Could not load records: "+e.message+" Check Spring Boot and CORS.",true)}}
+function switchKind(k){kind=k;document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.kind===k));$("pageTitle").textContent=cfg[k].title;$("pageDesc").textContent=cfg[k].desc;$("tableTitle").textContent="All "+cfg[k].title.toLowerCase();$("search").value="";closeForm();load()}
+$("recordForm").addEventListener("submit",async e=>{e.preventDefault();let payload={};cfg[kind].fields.forEach(([k])=>payload[k]=$("f-"+k).value.trim());try{if(kind==="complaints"&&editId!==null){await api(`/complaints/${editId}/status?status=${encodeURIComponent(payload.status)}`,{method:"PUT"});notice("Complaint status updated.")}else{await api(cfg[kind].endpoint+(editId!==null?"/"+editId:""),{method:editId!==null?"PUT":"POST",body:JSON.stringify(payload)});notice(editId!==null?"Record updated.":"Record created.")}closeForm();load()}catch(e){notice("Save failed: "+e.message,true)}});
+$("tbody").addEventListener("click",async e=>{let b=e.target.closest("button[data-action]");if(!b)return;let id=b.dataset.id,row=rows.find(x=>String(x.id)===id);if(b.dataset.action==="edit"||b.dataset.action==="status"){openForm(row);return}if(b.dataset.action==="delete"&&confirm(`Delete ${cfg[kind].singular} #${id}?`)){try{await api(cfg[kind].endpoint+"/"+id,{method:"DELETE"});notice("Record deleted.");load()}catch(e){notice("Delete failed: "+e.message,true)}}});
+document.querySelectorAll(".nav").forEach(b=>b.addEventListener("click",()=>switchKind(b.dataset.kind)));
+$("new").onclick=()=>openForm();$("cancel").onclick=closeForm;$("refresh").onclick=load;$("search").addEventListener("input",render);
+switchKind("complaints");
+</script>
+</body>
+</html>

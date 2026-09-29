@@ -9,5 +9,4 @@ public class ComplaintboxApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ComplaintboxApplication.class, args);
 	}
-
 }
